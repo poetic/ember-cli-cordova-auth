@@ -1,0 +1,30 @@
+{
+  "name": "ember-cli-cordova-auth",
+  "version": "0.0.1",
+  "description": "Simple authentication for cordova apps made with ember-cli-corodva",
+  "main": "ember-addon",
+  "scripts": {
+    "test": "cd test-app && ember test --server",
+    "test-ci": "cd test-app && npm install && ember test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/poetic/ember-cli-cordova-auth"
+  },
+  "keywords": [
+    "ember-addon",
+    "authentication",
+    "emberjs",
+    "cordova",
+    "phonegap"
+  ],
+  "ember-addon": {
+    "main": "ember-addon"
+  },
+  "author": "Jake Craige <jake@poeticsystems.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/poetic/ember-cli-cordova-auth/issues"
+  },
+  "homepage": "https://github.com/poetic/ember-cli-cordova-auth"
+}
