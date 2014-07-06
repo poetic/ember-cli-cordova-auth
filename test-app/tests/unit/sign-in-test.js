@@ -4,9 +4,9 @@ import simpleModule from '../helpers/simple-module';
 import stubRequest from '../helpers/stub-request';
 
 var session;
-simpleModule('Initializers/CordovaAuth', function(app, _session){
+simpleModule('Initializers/CordovaAuth/SignIn', function(app, _session){
   ENV = {
-    createSessionUrl: 'http://localhost:3000/api/v1/sessions'
+    signInUrl: 'http://localhost:3000/api/v1/sessions'
   };
   session = _session;
 }, function() {
@@ -29,21 +29,21 @@ test('asserts ENV present', function() {
   ENV = temp;
 });
 
-test('asserts ENV.createSessionUrl present', function() {
+test('asserts ENV.signInUrl present', function() {
   expect(1);
-  var temp = ENV.createSessionUrl;
+  var temp = ENV.signInUrl;
 
-  ENV.createSessionUrl = null;
+  ENV.signInUrl = null;
 
   throws(function() {
-    session.createSessionUrl();
+    session.signInUrl();
   });
 
   ENV.createSesionUrl = temp;
 });
 
-test('createSessionUrl is configured in ENV', function() {
-  equal(session.createSessionUrl(), ENV.createSessionUrl);
+test('signInUrl is configured in ENV', function() {
+  equal(session.signInUrl(), ENV.signInUrl);
 });
 
 test('sessionLocalStorageKey can be configured in ENV', function() {
@@ -53,20 +53,20 @@ test('sessionLocalStorageKey can be configured in ENV', function() {
   equal(lsKey, ENV.sessionLocalStorageKey);
 });
 
-asyncTest('successful authentication - sets isAuthenticated to true', function() {
+asyncTest('successful sign in - sets isSignedIn to true', function() {
   expect(1);
   stubRequest('/sessions', {
     email: 'example@example.com',
     access_token: '1234'
   });
 
-  session.authenticate('example@example.com', 'password').then(function() {
-    equal(session.get('isAuthenticated'), true);
+  session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
+    equal(session.get('isSignedIn'), true);
     start();
   });
 });
 
-asyncTest('successful authentication - sets properties on the session and localstorage', function() {
+asyncTest('successful sign in - sets properties on the session and localstorage', function() {
   expect(6);
   var properties = {
     email: 'example@example.com',
@@ -77,12 +77,12 @@ asyncTest('successful authentication - sets properties on the session and locals
   };
   stubRequest('/sessions', properties);
 
-  session.authenticate('example@example.com', 'password').then(function() {
-    equal(session.get('email'), 'example@example.com');
-    equal(session.get('access_token'), '1234');
-    equal(session.get('first_name'), 'Jane');
-    equal(session.get('last_name'), 'Doe');
-    equal(session.get('user_id'), 1);
+  session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
+    equal(session.get('email'), properties.email);
+    equal(session.get('access_token'), properties.access_token);
+    equal(session.get('first_name'), properties.first_name);
+    equal(session.get('last_name'), properties.last_name);
+    equal(session.get('user_id'), properties.user_id);
 
     var lsKey = session.localStorageKey();
     deepEqual(JSON.parse(localStorage.getItem(lsKey)), properties);
@@ -91,31 +91,31 @@ asyncTest('successful authentication - sets properties on the session and locals
   });
 });
 
-asyncTest('successful authentication - requres an access_token in the response', function() {
+asyncTest('successful sign in - requres an access_token in the response', function() {
   expect(1);
   stubRequest('/sessions', {
     email: 'example@example.com'
   });
 
-  session.authenticate('example@example.com', 'password').then(function() {
+  session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
   }, function(err) {
     match('An access_token must', err);
     start();
   });
 });
 
-asyncTest('successful authentication - reset() resets values', function() {
+asyncTest('successful sign in - reset() resets values', function() {
   expect(4);
   stubRequest('/sessions', {
     email: 'example@example.com',
     access_token: '1234',
   });
 
-  session.authenticate('example@example.com', 'password').then(function() {
+  session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
     session.reset();
     equal(session.get('email'), null);
     equal(session.get('access_token'), null);
-    equal(session.get('isAuthenticated'), false);
+    equal(session.get('isSignedIn'), false);
 
     var lsKey = session.localStorageKey();
     equal(localStorage.getItem(lsKey), null);
@@ -124,7 +124,7 @@ asyncTest('successful authentication - reset() resets values', function() {
   });
 });
 
-asyncTest('successful authentication - setPrefilter is called', function() {
+asyncTest('successful sign in - setPrefilter is called', function() {
   expect(1);
   stubRequest('/sessions', {
     email: 'example@example.com',
@@ -138,16 +138,17 @@ asyncTest('successful authentication - setPrefilter is called', function() {
     start();
   };
 
-  session.authenticate('example@example.com', 'password');
+  session.signIn({email: 'example@example.com', password: 'password'});
 });
 
-asyncTest('failed authentication - sets isAuthenticated to false', function() {
+asyncTest('failed sign in - sets isSignedIn to false', function() {
   expect(1);
   stubRequest('/sessions', {}, { status: 400 });
 
-  session.authenticate('example@example.com', 'password').then(function() {}, function() {
-    equal(session.get('isAuthenticated'), false);
-    start();
-  });
+  session.signIn({email: 'example@example.com', password: 'password'})
+    .then(function() {}, function() {
+      equal(session.get('isSignedIn'), false);
+      start();
+    });
 });
 

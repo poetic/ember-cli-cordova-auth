@@ -7,10 +7,10 @@ function assertENV() {
 }
 
 export default Ember.Object.extend({
-  createSessionUrl: function() {
+  signInUrl: function() {
     assertENV();
-    Ember.assert('You must define a createSessionUrl property on the global ENV variable for ember-cli-cordova-auth to use.', ENV.createSessionUrl);
-    return ENV.createSessionUrl;
+    Ember.assert('You must define a signInUrl property on the global ENV variable for ember-cli-cordova-auth to use.', ENV.signInUrl);
+    return ENV.signInUrl;
   },
 
   localStorageKey: function() {
@@ -36,7 +36,7 @@ export default Ember.Object.extend({
     this.setProperties(data);
   },
 
-  isAuthenticated: false,
+  isSignedIn: false,
 
   reset: function() {
     var session = this;
@@ -45,16 +45,11 @@ export default Ember.Object.extend({
     Ember.keys(session).forEach(function(key){
       session.set(key, null);
     });
-    session.set('isAuthenticated', false);
+    session.set('isSignedIn', false);
   },
 
-  authenticate: function(username, password) {
-    var data = {
-      username: username,
-      password: password
-    };
-
-    var request = icAjax(this.createSessionUrl(), {
+  signIn: function(data) {
+    var request = icAjax(this.signInUrl(), {
       method: 'POST',
       dataType: 'json',
       data: JSON.stringify(data),
@@ -66,15 +61,15 @@ export default Ember.Object.extend({
       request.then(function(userData){
         if(userData.access_token) {
           session.save(userData);
-          session.set('isAuthenticated', true);
+          session.set('isSignedIn', true);
           session.setPrefilter();
           resolve(userData);
         } else {
           reject('An access_token must be present in the session creation response.');
         }
       }, function(err){
-        console.log('Authentication error: ', err);
-        session.set('isAuthenticated', false);
+        console.log('Sign In error: ', err);
+        session.set('isSignedIn', false);
         reject(err);
       });
     });
