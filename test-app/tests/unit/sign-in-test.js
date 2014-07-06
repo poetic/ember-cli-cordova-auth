@@ -17,13 +17,13 @@ test('exists', function() {
   ok(session);
 });
 
-test('asserts ENV present', function() {
+test('asserts ENV.signInUrl present', function() {
   expect(1);
   var temp = ENV;
   ENV = {};
 
   throws(function() {
-    session.createSessionUr();
+    session.signInUrl();
   });
 
   ENV = temp;
@@ -91,13 +91,15 @@ asyncTest('successful sign in - sets properties on the session and localstorage'
   });
 });
 
-asyncTest('successful sign in - requres an access_token in the response', function() {
+asyncTest('successful sign in - requires an access_token in the response', function() {
   expect(1);
   stubRequest('/sessions', {
     email: 'example@example.com'
   });
 
   session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
+    ok(false, 'Should not hit here');
+    start();
   }, function(err) {
     match('An access_token must', err);
     start();
