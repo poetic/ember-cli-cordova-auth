@@ -13,6 +13,12 @@ export default Ember.Object.extend({
     return ENV.signInUrl;
   },
 
+  signUpUrl: function() {
+    assertENV();
+    Ember.assert('You must define a signUpUrl property on the global ENV variable for ember-cli-cordova-auth to use.', ENV.signUpUrl);
+    return ENV.signUpUrl;
+  },
+
   localStorageKey: function() {
     assertENV();
     return ENV.sessionLocalStorageKey || 'ember-cordova-auth';
@@ -73,9 +79,11 @@ export default Ember.Object.extend({
   },
 
   signIn: function(data) {
-    return this._postData(this.signInUrl(), data).catch(function(err){
-      console.log('Sign In error: ', err);
-    });
+    return this._postData(this.signInUrl(), data);
+  },
+
+  signUp: function(data) {
+    return this._postData(this.signUpUrl(), data);
   },
 
   setPrefilter: function() {

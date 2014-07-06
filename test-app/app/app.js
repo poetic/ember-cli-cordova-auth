@@ -10,7 +10,8 @@ var App = Ember.Application.extend({
 });
 
 window.ENV = {
-  createSessionUrl: 'http://localhost:3000/api/v1/sessions'
+  signInUrl: 'http://localhost:3000/api/v1/sessions',
+  signUpUrl: 'http://localhost:3000/api/v1/sign_up'
 };
 
 loadInitializers(App, 'test-app');
