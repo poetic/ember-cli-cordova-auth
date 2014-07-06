@@ -48,17 +48,15 @@ export default Ember.Object.extend({
     session.set('isSignedIn', false);
   },
 
-  signIn: function(data) {
-    var request = icAjax(this.signInUrl(), {
-      method: 'POST',
-      dataType: 'json',
-      data: JSON.stringify(data),
-      contentType: 'application/json'
-    });
-
+  _postData: function(url, data){
     var session = this;
     return new Ember.RSVP.Promise(function(resolve, reject) {
-      request.then(function(userData){
+      icAjax(url, {
+        method: 'POST',
+        dataType: 'json',
+        data: JSON.stringify(data),
+        contentType: 'application/json'
+      }).then(function(userData) {
         if(userData.access_token) {
           session.save(userData);
           session.set('isSignedIn', true);
@@ -67,11 +65,16 @@ export default Ember.Object.extend({
         } else {
           reject('An access_token must be present in the session creation response.');
         }
-      }, function(err){
-        console.log('Sign In error: ', err);
+      }, function(err) {
         session.set('isSignedIn', false);
         reject(err);
       });
+    });
+  },
+
+  signIn: function(data) {
+    return this._postData(this.signInUrl(), data).catch(function(err){
+      console.log('Sign In error: ', err);
     });
   },
 
