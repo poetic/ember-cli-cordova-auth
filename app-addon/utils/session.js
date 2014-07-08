@@ -26,6 +26,12 @@ export default Ember.Object.extend({
     return ENV.facebookSignInUrl;
   },
 
+  resetPasswordUrl: function() {
+    assertENV();
+    Ember.assert('You must define a resetPasswordUrl property on the global ENV variable for ember-cli-cordova-auth to use.', ENV.resetPasswordUrl);
+    return ENV.resetPasswordUrl;
+  },
+
   localStorageKey: function() {
     assertENV();
     return ENV.sessionLocalStorageKey || 'ember-cordova-auth';
@@ -93,6 +99,17 @@ export default Ember.Object.extend({
     return this._postData(this.signUpUrl(), data);
   },
 
+  resetPassword: function(data) {
+    var session = this;
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      icAjax(session.resetPasswordUrl(), {
+        method: 'POST',
+        dataType: 'json',
+        data: JSON.stringify(data),
+        contentType: 'application/json'
+      }).then(resolve, reject);
+    });
+  },
 
   signInWithFacebook: function(permissions) {
     var session = this;
