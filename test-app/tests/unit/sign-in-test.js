@@ -2,6 +2,7 @@
 
 import simpleModule from '../helpers/simple-module';
 import stubRequest from '../helpers/stub-request';
+import { test } from 'ember-qunit';
 
 var session;
 simpleModule('Initializers/CordovaAuth/SignIn', function(app, _session){
@@ -53,20 +54,19 @@ test('sessionLocalStorageKey can be configured in ENV', function() {
   equal(lsKey, ENV.sessionLocalStorageKey);
 });
 
-asyncTest('successful sign in - sets isSignedIn to true', function() {
+test('successful sign in - sets isSignedIn to true', function() {
   expect(1);
   stubRequest('/sessions', {
     email: 'example@example.com',
     access_token: '1234'
   });
 
-  session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
+  return session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
     equal(session.get('isSignedIn'), true);
-    start();
   });
 });
 
-asyncTest('successful sign in - sets properties on the session and localstorage', function() {
+test('successful sign in - sets properties on the session and localstorage', function() {
   expect(6);
   var properties = {
     email: 'example@example.com',
@@ -77,7 +77,7 @@ asyncTest('successful sign in - sets properties on the session and localstorage'
   };
   stubRequest('/sessions', properties);
 
-  session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
+  return session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
     equal(session.get('email'), properties.email);
     equal(session.get('access_token'), properties.access_token);
     equal(session.get('first_name'), properties.first_name);
@@ -87,33 +87,30 @@ asyncTest('successful sign in - sets properties on the session and localstorage'
     var lsKey = session.localStorageKey();
     deepEqual(JSON.parse(localStorage.getItem(lsKey)), properties);
 
-    start();
   });
 });
 
-asyncTest('successful sign in - requires an access_token in the response', function() {
+test('successful sign in - requires an access_token in the response', function() {
   expect(1);
   stubRequest('/sessions', {
     email: 'example@example.com'
   });
 
-  session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
+  return session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
     ok(false, 'Should not hit here');
-    start();
   }, function(err) {
     match('An access_token must', err);
-    start();
   });
 });
 
-asyncTest('successful sign in - reset() resets values', function() {
+test('successful sign in - reset() resets values', function() {
   expect(4);
   stubRequest('/sessions', {
     email: 'example@example.com',
     access_token: '1234',
   });
 
-  session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
+  return session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
     session.reset();
     equal(session.get('email'), null);
     equal(session.get('access_token'), null);
@@ -121,12 +118,10 @@ asyncTest('successful sign in - reset() resets values', function() {
 
     var lsKey = session.localStorageKey();
     equal(localStorage.getItem(lsKey), null);
-
-    start();
   });
 });
 
-asyncTest('successful sign in - setPrefilter is called', function() {
+test('successful sign in - setPrefilter is called', function() {
   expect(1);
   stubRequest('/sessions', {
     email: 'example@example.com',
@@ -137,20 +132,18 @@ asyncTest('successful sign in - setPrefilter is called', function() {
   session.setPrefilter = function() {
     var addedPrefilter = _setPrefilter.apply(this, arguments);
     equal(addedPrefilter, true);
-    start();
   };
 
-  session.signIn({email: 'example@example.com', password: 'password'});
+  return session.signIn({email: 'example@example.com', password: 'password'});
 });
 
-asyncTest('failed sign in - sets isSignedIn to false', function() {
+test('failed sign in - sets isSignedIn to false', function() {
   expect(1);
   stubRequest('/sessions', {}, { status: 400 });
 
-  session.signIn({email: 'example@example.com', password: 'password'})
+  return session.signIn({email: 'example@example.com', password: 'password'})
     .then(function() {}, function() {
       equal(session.get('isSignedIn'), false);
-      start();
     });
 });
 

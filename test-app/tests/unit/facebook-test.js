@@ -2,6 +2,7 @@
 
 import simpleModule from '../helpers/simple-module';
 import stubRequest from '../helpers/stub-request';
+import { test } from 'ember-qunit';
 
 var fbSuccessResponse = {
   authResponse: {
@@ -52,15 +53,13 @@ asyncTest('successful facebook sign in - sets isSignedIn to true', function() {
 
   session.signInWithFacebook(['basic_info']).then(function() {
     equal(session.get('isSignedIn'), true);
-    start();
   }, function(err) {
     console.log(arguments);
     ok(false, 'FacebookSignIn Err: ', err);
-    start();
-  });
+  }).finally(start);
 });
 
-asyncTest('successful facebook sign in - sets properties on the session and localstorage', function() {
+test('successful facebook sign in - sets properties on the session and localstorage', function() {
   expect(6);
   var properties = {
     email: 'example@example.com',
@@ -71,7 +70,7 @@ asyncTest('successful facebook sign in - sets properties on the session and loca
   };
   stubRequest('/sessions/facebook', properties);
 
-  session.signInWithFacebook({email: 'example@example.com', password: 'password'}).then(function() {
+  return session.signInWithFacebook({email: 'example@example.com', password: 'password'}).then(function() {
     equal(session.get('email'), properties.email);
     equal(session.get('access_token'), properties.access_token);
     equal(session.get('first_name'), properties.first_name);
@@ -80,7 +79,29 @@ asyncTest('successful facebook sign in - sets properties on the session and loca
 
     var lsKey = session.localStorageKey();
     deepEqual(JSON.parse(localStorage.getItem(lsKey)), properties);
+  });
+});
 
-    start();
+test('failed facebook sign in - rejects', function() {
+  expect(1);
+  stubRequest('/sessions/facebook', { }, { status: 400 });
+
+  return session.signInWithFacebook(['basic_info']).then(function() {
+    ok(false, 'Should have rejected');
+  }, function() {
+    ok(true);
+  });
+});
+
+test('facebook sign in - requires access_token', function() {
+  expect(1);
+  stubRequest('/sessions/facebook', {
+    email: 'example@example.com'
+  });
+
+  return session.signInWithFacebook(['basic_info']).then(function() {
+    ok(false, 'Should have rejected');
+  }, function(err) {
+    ok(true);
   });
 });

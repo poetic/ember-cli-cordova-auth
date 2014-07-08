@@ -2,6 +2,7 @@
 
 import simpleModule from '../helpers/simple-module';
 import stubRequest from '../helpers/stub-request';
+import { test } from 'ember-qunit';
 
 var session;
 simpleModule('Initializers/CordovaAuth/SignUp', function(app, _session){
@@ -25,20 +26,19 @@ test('asserts ENV.signUpUrl present', function() {
   ENV = temp;
 });
 
-asyncTest('successful sign up - sets isSignedIn to true', function() {
+test('successful sign up - sets isSignedIn to true', function() {
   expect(1);
   stubRequest('/sign_up', {
     email: 'example@example.com',
     access_token: '1234'
   });
 
-  session.signUp({email: 'example@example.com', password: 'password'}).then(function() {
+  return session.signUp({email: 'example@example.com', password: 'password'}).then(function() {
     equal(session.get('isSignedIn'), true);
-    start();
   });
 });
 
-asyncTest('successful sign up - sets properties on the session and localstorage', function() {
+test('successful sign up - sets properties on the session and localstorage', function() {
   expect(6);
   var properties = {
     email: 'example@example.com',
@@ -49,7 +49,7 @@ asyncTest('successful sign up - sets properties on the session and localstorage'
   };
   stubRequest('/sign_up', properties);
 
-  session.signUp({email: 'example@example.com', password: 'password'}).then(function() {
+  return session.signUp({email: 'example@example.com', password: 'password'}).then(function() {
     equal(session.get('email'), properties.email);
     equal(session.get('access_token'), properties.access_token);
     equal(session.get('first_name'), properties.first_name);
@@ -58,27 +58,23 @@ asyncTest('successful sign up - sets properties on the session and localstorage'
 
     var lsKey = session.localStorageKey();
     deepEqual(JSON.parse(localStorage.getItem(lsKey)), properties);
-
-    start();
   });
 });
 
-asyncTest('successful sign up - requres an access_token in the response', function() {
+test('successful sign up - requres an access_token in the response', function() {
   expect(1);
   stubRequest('/sign_up', {
     email: 'example@example.com'
   });
 
-  session.signUp({email: 'example@example.com', password: 'password'}).then(function() {
+  return session.signUp({email: 'example@example.com', password: 'password'}).then(function() {
     ok(false, 'Should never be here');
-    start();
   }, function(err) {
     match('An access_token must', err);
-    start();
   });
 });
 
-asyncTest('successful sign up - setPrefilter is called', function() {
+test('successful sign up - setPrefilter is called', function() {
   expect(1);
   stubRequest('/sign_up', {
     email: 'example@example.com',
@@ -89,20 +85,18 @@ asyncTest('successful sign up - setPrefilter is called', function() {
   session.setPrefilter = function() {
     var addedPrefilter = _setPrefilter.apply(this, arguments);
     equal(addedPrefilter, true);
-    start();
   };
 
-  session.signUp({email: 'example@example.com', password: 'password'});
+  return session.signUp({email: 'example@example.com', password: 'password'});
 });
 
-asyncTest('failed sign up - sets isSignedIn to false', function() {
+test('failed sign up - sets isSignedIn to false', function() {
   expect(1);
   stubRequest('/sign_up', {}, { status: 400 });
 
-  session.signUp({email: 'example@example.com', password: 'password'})
+  return session.signUp({email: 'example@example.com', password: 'password'})
     .then(function() {}, function() {
       equal(session.get('isSignedIn'), false);
-      start();
     });
 });
 
