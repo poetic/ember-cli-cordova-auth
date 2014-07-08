@@ -1,6 +1,7 @@
 /* globals ENV */
 import Ember from 'ember';
 import icAjax from 'ic-ajax';
+import Facebook from './facebook';
 
 function assertENV() {
   Ember.assert('You must define a global ENV variable for ember-cli-cordova-auth to use. The easiest way is to put `window.ENV = {}`` in your app.js`', Ember.keys(ENV).length);
@@ -17,6 +18,12 @@ export default Ember.Object.extend({
     assertENV();
     Ember.assert('You must define a signUpUrl property on the global ENV variable for ember-cli-cordova-auth to use.', ENV.signUpUrl);
     return ENV.signUpUrl;
+  },
+
+  facebookSignInUrl: function() {
+    assertENV();
+    Ember.assert('You must define a facebookSignInUrl property on the global ENV variable for ember-cli-cordova-auth to use.', ENV.facebookSignInUrl);
+    return ENV.facebookSignInUrl;
   },
 
   localStorageKey: function() {
@@ -84,6 +91,14 @@ export default Ember.Object.extend({
 
   signUp: function(data) {
     return this._postData(this.signUpUrl(), data);
+  },
+
+
+  signInWithFacebook: function(permissions) {
+    var session = this;
+    return Facebook.signIn(permissions).then(function(response){
+      return session._postData(session.facebookSignInUrl(), response);
+    });
   },
 
   setPrefilter: function() {
