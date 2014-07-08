@@ -44,19 +44,18 @@ test('asserts ENV.signInUrl present', function() {
   ENV = temp;
 });
 
-asyncTest('successful facebook sign in - sets isSignedIn to true', function() {
+test('successful facebook sign in - sets isSignedIn to true', function() {
   expect(1);
   stubRequest('/sessions/facebook', {
     email: 'example@example.com',
     access_token: '1234'
   });
 
-  session.signInWithFacebook(['basic_info']).then(function() {
+  return session.signInWithFacebook(['basic_info']).then(function() {
     equal(session.get('isSignedIn'), true);
   }, function(err) {
-    console.log(arguments);
     ok(false, 'FacebookSignIn Err: ', err);
-  }).finally(start);
+  });
 });
 
 test('successful facebook sign in - sets properties on the session and localstorage', function() {

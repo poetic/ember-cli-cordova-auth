@@ -8,6 +8,19 @@ function assertENV() {
 }
 
 export default Ember.Object.extend({
+  initializeState: function() {
+    var storedSession = localStorage.getItem(this.localStorageKey());
+    try {
+      if(storedSession) {
+        storedSession = JSON.parse(storedSession);
+        this.setProperties(storedSession);
+        this.setPrefilter();
+      }
+    } catch(e) {
+      // Swallow this error since it's a JSON parse error
+    }
+  }.on('init'),
+
   signInUrl: function() {
     assertENV();
     Ember.assert('You must define a signInUrl property on the global ENV variable for ember-cli-cordova-auth to use.', ENV.signInUrl);
@@ -37,25 +50,12 @@ export default Ember.Object.extend({
     return ENV.sessionLocalStorageKey || 'ember-cordova-auth';
   },
 
-  setSession: function() {
-    var storedSession = localStorage.getItem(this.localStorageKey());
-    try {
-      if(storedSession) {
-        storedSession = JSON.parse(storedSession);
-        this.setProperties(storedSession);
-        this.setPrefilter();
-      }
-    } catch(e) {
-      // Swallow this error since it's a JSON parse error
-    }
-  }.on('init'),
-
   save: function(data) {
     localStorage.setItem(this.localStorageKey(), JSON.stringify(data));
     this.setProperties(data);
   },
 
-  isSignedIn: false,
+  isSignedIn: Ember.computed.notEmpty('access_token'),
 
   reset: function() {
     var session = this;
