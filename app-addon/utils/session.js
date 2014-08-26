@@ -7,13 +7,15 @@ function assertENV() {
   Ember.assert('You must define a global ENV variable for ember-cli-cordova-auth to use. The easiest way is to put `window.ENV = {}`` in your app.js`', Ember.keys(ENV).length);
 }
 
+var get = Ember.get;
+
 export default Ember.Object.extend({
   initializeState: function() {
     var storedSession = localStorage.getItem(this.localStorageKey());
     try {
       if(storedSession) {
         storedSession = JSON.parse(storedSession);
-        this.setProperties(storedSession);
+        this.setProperties(storedSession.user);
         this.setPrefilter();
       }
     } catch(e) {
@@ -45,6 +47,12 @@ export default Ember.Object.extend({
     return ENV.resetPasswordUrl;
   },
 
+  authTokenKey: function() {
+    assertENV();
+    Ember.assert('You must define an authTokenKey property on the global ENV variable for ember-cli-cordova-auth to use.', ENV.authTokenKey);
+    return ENV.authTokenKey;
+  },
+
   localStorageKey: function() {
     assertENV();
     return ENV.sessionLocalStorageKey || 'ember-cordova-auth';
@@ -52,10 +60,10 @@ export default Ember.Object.extend({
 
   save: function(data) {
     localStorage.setItem(this.localStorageKey(), JSON.stringify(data));
-    this.setProperties(data);
+    this.setProperties(data.user);
   },
 
-  isSignedIn: Ember.computed.notEmpty('access_token'),
+  isSignedIn: Ember.computed.notEmpty(ENV.authTokenKey),
 
   reset: function() {
     var session = this;
@@ -76,13 +84,13 @@ export default Ember.Object.extend({
         data: JSON.stringify(data),
         contentType: 'application/json'
       }).then(function(userData) {
-        if(userData.access_token) {
+        if(get(userData.user, session.authTokenKey())) {
           session.save(userData);
           session.set('isSignedIn', true);
           session.setPrefilter();
           resolve(userData);
         } else {
-          reject('An access_token must be present in the session creation response.');
+          reject('An ' + session.authTokenKey() + ' must be present in the session creation response.');
         }
       }, function(err) {
         session.set('isSignedIn', false);
@@ -119,16 +127,16 @@ export default Ember.Object.extend({
   },
 
   setPrefilter: function() {
-    var accessToken = this.get('access_token');
+    var authToken = this.get(this.authTokenKey());
 
-    if(Ember.isNone(accessToken)) {
+    if(Ember.isNone(authToken)) {
       return false;
     }
 
     Ember.$.ajaxPrefilter(function(options) {
       if (!options.beforeSend) {
         options.beforeSend = function (xhr) {
-          xhr.setRequestHeader('Authorization', accessToken);
+          xhr.setRequestHeader('Authorization', authToken);
         };
       }
     });

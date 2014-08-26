@@ -5,9 +5,12 @@ import stubRequest from '../helpers/stub-request';
 import { test } from 'ember-qunit';
 
 var properties = {
-  access_token: "1234",
-  email: "example@example.com"
+  user: {
+    access_token: "1234",
+    email: "example@example.com"
+  }
 };
+var user = properties.user;
 
 var session;
 simpleModule('Initializers/CordovaAuth/Initialize with Data', function(app, _session){
@@ -21,7 +24,7 @@ simpleModule('Initializers/CordovaAuth/Initialize with Data', function(app, _ses
 test('sets properties after initialize', function() {
   expect(1);
 
-  equal(session.get('email'), properties.email);
+  equal(session.get('email'), user.email);
 });
 
 test('sets prefiler after initialize', function() {
