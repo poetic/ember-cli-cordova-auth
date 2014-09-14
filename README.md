@@ -8,13 +8,13 @@ It also supports Facebook login through [phonegap-facebook-plugin](https://githu
 # Usage
 
 This plugin provides a very simple API and injects a `session` object throughout
-your app. Here are some of the methods available to you:
+your app. Here are some of the methods available:
 
 ## Session Methods
 
 * `config.` is being used to signify options in the config/environment.js file
 * There is an implied this.session for accessing the methods
-
+* All methods return promises
 
 ### signIn / signUp - params: object
 
@@ -59,9 +59,9 @@ POST request to config.facebookSignInUrl with facebook's returned data.
 Returned data from there get's set as properties on the session itself as it
 does when calling signIn directly.
 
-### reset
+### signOut
 
-It clears the in memory session and the localStorage cached copy. It's pretty much a sign out method.
+It clears the in memory session and the localStorage cached copy.
 
 ## Config
 

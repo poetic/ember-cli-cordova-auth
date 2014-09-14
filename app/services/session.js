@@ -49,14 +49,21 @@ export default Ember.Object.extend({
 
   isSignedIn: Ember.computed.notEmpty(config.authTokenKey),
 
-  reset: function() {
+  signOut: function() {
     var session = this;
 
-    localStorage.removeItem(session.localStorageKey());
-    Ember.keys(session).forEach(function(key){
-      session.set(key, null);
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      try {
+        localStorage.removeItem(session.localStorageKey());
+        Ember.keys(session).forEach(function(key){
+          session.set(key, null);
+        });
+        session.set('isSignedIn', false);
+        resolve();
+      } catch(e) {
+        reject(e);
+      }
     });
-    session.set('isSignedIn', false);
   },
 
   _postData: function(url, data){

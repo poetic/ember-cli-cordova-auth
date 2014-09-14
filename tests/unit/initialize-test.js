@@ -18,7 +18,7 @@ simpleModule('Initializers/CordovaAuth/Initialize with Data', function(app, _ses
   localStorage.setItem(session.localStorageKey(), JSON.stringify(properties));
   session.initializeState();
 }, function() {
-  session.reset();
+  session.signOut();
 });
 
 test('sets properties after initialize', function() {
@@ -46,7 +46,7 @@ simpleModule('Initializers/CordovaAuth/Initialize without Data', function(app, _
   localStorage.removeItem(session.localStorageKey());
   session.initializeState();
 }, function() {
-  session.reset();
+  session.signOut();
 });
 
 test('doesn\'t set prefiler', function() {

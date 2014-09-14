@@ -9,7 +9,7 @@ var session;
 simpleModule('Initializers/CordovaAuth/SignIn', function(app, _session){
   session = _session;
 }, function() {
-  session.reset();
+  session.signOut();
 });
 
 test('exists', function() {
@@ -82,7 +82,7 @@ test('successful sign in - requires an access_token in the response', function()
   });
 });
 
-test('successful sign in - reset() resets values', function() {
+test('successful sign in - signOut() resets values', function() {
   expect(4);
   stubRequest('/sessions', {
     user: {
@@ -92,7 +92,7 @@ test('successful sign in - reset() resets values', function() {
   });
 
   return session.signIn({email: 'example@example.com', password: 'password'}).then(function() {
-    session.reset();
+    session.signOut();
     equal(session.get('email'), null);
     equal(session.get('access_token'), null);
     equal(session.get('isSignedIn'), false);

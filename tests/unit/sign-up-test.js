@@ -9,7 +9,7 @@ var session;
 simpleModule('Initializers/CordovaAuth/SignUp', function(app, _session){
   session = _session;
 }, function() {
-  session.reset();
+  session.signOut();
 });
 
 test('successful sign up - sets isSignedIn to true', function() {

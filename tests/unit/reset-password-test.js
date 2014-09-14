@@ -9,7 +9,7 @@ var session;
 simpleModule('Initializers/CordovaAuth/ResetPassword', function(app, _session){
   session = _session;
 }, function() {
-  session.reset();
+  session.signOut();
 });
 
 test('successful password reset - resolves', function() {

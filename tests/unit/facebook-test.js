@@ -26,7 +26,7 @@ var session;
 simpleModule('Initializers/CordovaAuth/Facebook', function(app, _session){
   session = _session;
 }, function() {
-  session.reset();
+  session.signOut();
 });
 
 test('successful facebook sign in - sets isSignedIn to true', function() {
