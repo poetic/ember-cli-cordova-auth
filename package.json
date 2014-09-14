@@ -2,14 +2,21 @@
   "name": "ember-cli-cordova-auth",
   "version": "0.0.2",
   "description": "Simple authentication for cordova apps made with ember-cli-corodva",
-  "main": "ember-addon",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
   "scripts": {
-    "test": "cd test-app && ember test --server",
-    "test-ci": "cd test-app && npm install && ember test"
+    "start": "ember server",
+    "build": "ember build",
+    "test": "ember test"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/poetic/ember-cli-cordova-auth"
+  },
+  "engines": {
+    "node": ">= 0.10.0"
   },
   "keywords": [
     "ember-addon",
@@ -18,13 +25,25 @@
     "cordova",
     "phonegap"
   ],
-  "ember-addon": {
-    "main": "ember-addon"
-  },
   "author": "Jake Craige <jake@poeticsystems.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/poetic/ember-cli-cordova-auth/issues"
   },
-  "homepage": "https://github.com/poetic/ember-cli-cordova-auth"
+  "homepage": "https://github.com/poetic/ember-cli-cordova-auth",
+  "devDependencies": {
+    "body-parser": "^1.2.0",
+    "broccoli-asset-rev": "0.1.1",
+    "broccoli-ember-hbs-template-compiler": "^1.6.1",
+    "ember-cli": "0.0.44",
+    "ember-cli-ic-ajax": "0.1.1",
+    "ember-cli-inject-live-reload": "^1.0.2",
+    "ember-cli-qunit": "0.1.0",
+    "ember-data": "1.0.0-beta.10",
+    "express": "^4.8.5",
+    "glob": "^4.0.5"
+  },
+  "ember-addon": {
+    "configPath": "tests/dummy/config"
+  }
 }
