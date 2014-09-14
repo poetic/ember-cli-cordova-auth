@@ -16,7 +16,7 @@ your app. Here are some of the methods available to you:
 * There is an implied this.session for accessing the methods
 
 
-### **signIn / signUp - params: object**
+### signIn / signUp - params: object
 
 Sends a POST request to config.signInUrl/signUpUrl respectively with object
 passed in. The returned data get's set as properties on the session itself. It must
@@ -25,7 +25,6 @@ have a user root key in the response
 Example response:
 
 ```js
-//
 {
   "user": {
     "id": 1,
@@ -43,12 +42,12 @@ The returned data is persisted in localStorage using the
 config.sessionLocalStorageKey key. On app initialization this is loaded back
 into the session object automatically.
 
-### **resetPassword - params: object**
+### resetPassword - params: object
 
 Sends a POST request to config.resetPasswordUrl with object passed in. That's
 it.
 
-### **signInWithFacebook - params: array of fb permissions**
+### signInWithFacebook - params: array of fb permissions
  
 *Requires the
 [phonegap-facebook-connect](https://github.com/Wizcorp/phonegap-facebook-plugin)
@@ -60,29 +59,31 @@ POST request to config.facebookSignInUrl with facebook's returned data.
 Returned data from there get's set as properties on the session itself as it
 does when calling signIn directly.
 
-### **reset**
+### reset
 
-It clears the in memory session and the localStorage cached copy. 
+It clears the in memory session and the localStorage cached copy. It's pretty much a sign out method.
 
 ## Config
 
 The config is set in config/environment.js
 
-```js
-signInUrl
-signUpUrl
-facebookSignInUrl
-resetPasswordUrl
-
-/*
- * Optional: The key used to determine if a user is signed in or not
- */
-authTokenKey
-
-/*
- * Optional: The key used to store the session data in localStorage
- */
-localStorageKey
+```
+  // These URL's are used when sending external requests
+  
+  ENV.signInUrl               = 'http://localhost:3000/api/v1/sessions';
+  ENV.signUpUrl               = 'http://localhost:3000/api/v1/sign_up';
+  ENV.facebookSignInUrl       = 'http://localhost:3000/api/v1/sessions/facebook';
+  ENV.resetPasswordUrl        = 'http://localhost:3000/api/v1/users/password';
+  
+  // A computed property is set on an 'authToken' value being present in the signIn/signUp response. This determines
+  // if a user is signed in or not. Use this setting to override it if needed
+  
+  ENV.authTokenKey  = 'access_token';
+  
+  // The session is persisted to localstorage under an 'ember-cli-cordova-auth' key by default. You can override it
+  // with this option
+  
+  ENV.sessionLocalStorageKey  = 'test-localstorage';
 ```
 
 ## Properties
@@ -90,7 +91,7 @@ localStorageKey
 The session contains some default properties to validate session state as well
 as the ones applied after signing up or in
 
-### **isSignedIn**
+### isSignedIn
 
 At any point you can call `isSignedIn` to check whether or not a user is logged
 in to the app. This is persisted across app restarts via localStorage.
@@ -107,6 +108,10 @@ export default Ember.Route.extend({
   }
 });
 ```
+
+### Others
+
+The properties returned from calling signIn / signUp will also be store. See the section on those methods for details.
 
 
 ### Developing this addon
