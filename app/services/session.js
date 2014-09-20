@@ -118,13 +118,15 @@ export default Ember.Object.extend({
   },
 
   setPrefilter: function() {
-    var authToken = this.get(this.authTokenKey());
-
-    if(Ember.isNone(authToken)) {
-      return false;
-    }
-
     Ember.$.ajaxPrefilter(function(options) {
+      try {
+        var authObj = JSON.parse(localStorage.getItem(this.authTokenKey()));
+        var authToken = authObj['user']['auth_token'];
+      } catch (e) {
+        // ignore json parse error;
+        return false;
+      }
+
       if (!options.beforeSend) {
         options.beforeSend = function (xhr) {
           xhr.setRequestHeader('Authorization', authToken);
