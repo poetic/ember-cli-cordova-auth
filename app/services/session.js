@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import icAjax from 'ic-ajax';
 import Facebook from '../utils/facebook';
+import Google from '../utils/google';
 import config from '../config/environment';
 
 var get = Ember.get;
@@ -32,6 +33,7 @@ export default Ember.Object.extend({
   signInUrl:          assertConfig('signInUrl'),
   signUpUrl:          assertConfig('signUpUrl'),
   facebookSignInUrl:  assertConfig('facebookSignInUrl'),
+  googleSignInUrl:    assertConfig('googleSignInUrl'),
   resetPasswordUrl:   assertConfig('resetPasswordUrl'),
 
   authTokenKey: function() {
@@ -112,8 +114,15 @@ export default Ember.Object.extend({
 
   signInWithFacebook: function(permissions) {
     var session = this;
-    return Facebook.signIn(permissions).then(function(response){
+    return Facebook.signIn(permissions).then(function(response) {
       return session._postData(session.facebookSignInUrl(), response);
+    });
+  },
+
+  signInWithGoogle: function(settings) {
+    var session = this;
+    return Google.signIn(settings).then(function(response) {
+      return session._postData(session.googleSignInUrl(), response);
     });
   },
 
