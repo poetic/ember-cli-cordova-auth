@@ -10,16 +10,12 @@ export default {
     }
     if (typeof plugins.googleplus === undefined) {
       var msg = 'The google plus plugin was not found. ';
-      msg += '(https://github.com/EddyVerbruggen/cordova-plugin-';
+      msg += '(https://github.com/poetic/cordova-plugin-';
       msg += 'googleplus)'
       return Ember.RSVP.reject(msg);
     }
     return new Ember.RSVP.Promise(function(resolve, reject) {
-      plugins.googleplus.login(settings, function(res) {
-        resolve(res);
-      }, function(msg) {
-        reject(msg);
-      });
+      plugins.googleplus.login(settings, resolve, reject);
     });
   }
 };
