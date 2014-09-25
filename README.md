@@ -11,7 +11,7 @@ your app. Here are some of the methods available:
 ## Third party authentication support
 
 Facebook - [phonegap-facebook-plugin](https://github.com/phonegap/phonegap-facebook-plugin)
-Google - [cordova-plugin-googleplus](https://github.com/EddyVerbruggen/cordova-plugin-googleplus)
+Google - [cordova-plugin-googleplus](https://github.com/poetic/cordova-plugin-googleplus)
 
 ## Session Methods
 
