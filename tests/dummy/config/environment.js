@@ -46,6 +46,7 @@ module.exports = function(environment) {
   ENV.signInUrl              = 'http://localhost:3000/api/v1/sessions';
   ENV.signUpUrl              = 'http://localhost:3000/api/v1/sign_up';
   ENV.facebookSignInUrl      = 'http://localhost:3000/api/v1/sessions/facebook';
+  ENV.googleSignInUrl        = 'http://localhost:3000/api/v1/sessions/google';
   ENV.resetPasswordUrl       = 'http://localhost:3000/api/v1/users/password';
   ENV.authTokenKey           = 'access_token';
   ENV.sessionLocalStorageKey = 'test-localstorage';

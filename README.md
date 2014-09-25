@@ -3,12 +3,15 @@
 A simple authentication library built for ember-cli-cordova apps. It manages
 whether or not the user is signed in by an authentication token.
 
-It also supports Facebook login through [phonegap-facebook-plugin](https://github.com/phonegap/phonegap-facebook-plugin)
-
 # Usage
 
 This plugin provides a very simple API and injects a `session` object throughout
 your app. Here are some of the methods available:
+
+## Third party authentication support
+
+Facebook - [phonegap-facebook-plugin](https://github.com/phonegap/phonegap-facebook-plugin)
+Google - [cordova-plugin-googleplus](https://github.com/poetic/cordova-plugin-googleplus)
 
 ## Session Methods
 
@@ -48,7 +51,7 @@ Sends a POST request to config.resetPasswordUrl with object passed in. That's
 it.
 
 ### signInWithFacebook - params: array of fb permissions
- 
+
 *Requires the
 [phonegap-facebook-connect](https://github.com/Wizcorp/phonegap-facebook-plugin)
 plugin to be installed. You must also be running the app within the simulator or
@@ -58,6 +61,19 @@ Prompts the user with the Native Facebook dialog. When accepted it sends a
 POST request to config.facebookSignInUrl with facebook's returned data.
 Returned data from there get's set as properties on the session itself as it
 does when calling signIn directly.
+
+### signInWithGoogle - params: Object with at least the iOSApiKey and value
+
+*Requires the
+[cordova-plugin-googleplus](https://github.com/EddyVerbruggen/cordova-plugin-googleplus)
+plugin to be installed. You must also be running the app within the simulator or
+on a device*
+
+It takes the user to the device browser so you can authenticate with google.
+When it returns to the app after a successful response, it makes a POST request
+to config.googleSignInUrl with the returned data. The response of this POST
+should be the same as when calling signIn directly, thus getting stored on the
+session (user data).
 
 ### signOut
 
@@ -69,20 +85,20 @@ The config is set in config/environment.js
 
 ```
   // These URL's are used when sending external requests
-  
+
   ENV.signInUrl               = 'http://localhost:3000/api/v1/sessions';
   ENV.signUpUrl               = 'http://localhost:3000/api/v1/sign_up';
   ENV.facebookSignInUrl       = 'http://localhost:3000/api/v1/sessions/facebook';
   ENV.resetPasswordUrl        = 'http://localhost:3000/api/v1/users/password';
-  
+
   // A computed property is set on an 'authToken' value being present in the signIn/signUp response. This determines
   // if a user is signed in or not. Use this setting to override it if needed
-  
+
   ENV.authTokenKey  = 'access_token';
-  
+
   // The session is persisted to localstorage under an 'ember-cli-cordova-auth' key by default. You can override it
   // with this option
-  
+
   ENV.sessionLocalStorageKey  = 'test-localstorage';
 ```
 
