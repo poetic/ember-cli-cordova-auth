@@ -45,6 +45,9 @@ export default Ember.Object.extend({
   save: function(data) {
     localStorage.setItem(this.localStorageKey(), JSON.stringify(data));
     this.setProperties(data.user);
+    // Do not store auth token key in session, store this info in a single place:
+    // localStorage
+    this.set(this.authTokenKey(), null);
   },
 
   isSignedIn: Ember.computed.notEmpty(config.authTokenKey),
