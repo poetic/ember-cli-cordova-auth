@@ -127,11 +127,9 @@ export default Ember.Object.extend({
         return false;
       }
 
-      if (!options.beforeSend) {
-        options.beforeSend = function (xhr) {
-          xhr.setRequestHeader('Authorization', authToken);
-        };
-      }
+      options.beforeSend = function (xhr) {
+        xhr.setRequestHeader('Authorization', authToken);
+      };
     });
 
     return true;
