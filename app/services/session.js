@@ -59,6 +59,7 @@ export default Ember.Object.extend({
           session.set(key, null);
         });
         session.set('isSignedIn', false);
+        session.setPrefilter();
         resolve();
       } catch(e) {
         reject(e);
@@ -124,11 +125,12 @@ export default Ember.Object.extend({
         var authToken = authObj['user']['auth_token'];
       } catch (e) {
         // ignore json parse error;
-        return false;
       }
 
+      // always set authToken no matter the localStorage has the token or not
+      // since we want to sign out and clean the request header
       options.beforeSend = function (xhr) {
-        xhr.setRequestHeader('Authorization', authToken);
+        xhr.setRequestHeader('Authorization', authToken || '');
       };
     });
 
