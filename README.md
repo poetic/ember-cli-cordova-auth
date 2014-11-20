@@ -3,6 +3,12 @@
 A simple authentication library built for ember-cli-cordova apps. It manages
 whether or not the user is signed in by an authentication token.
 
+# Installation
+
+```sh
+npm install --save-dev ember-cli-cordova-auth
+```
+
 # Usage
 
 This plugin provides a very simple API and injects a `session` object throughout
