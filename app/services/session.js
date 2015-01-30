@@ -17,7 +17,7 @@ function assertConfig(name) {
 }
 
 export default Ember.Object.extend({
-  initializeState: function() {
+  initializeState: Ember.on('init', function() {
     var storedSession = localStorage.getItem(this.localStorageKey());
     try {
       if(storedSession) {
@@ -26,9 +26,10 @@ export default Ember.Object.extend({
         this.setPrefilter();
       }
     } catch(e) {
-      // Swallow this error since it's a JSON parse error
+      Ember.assert('JSON parse error at services/session.js:initializeState()');
     }
-  }.on('init'),
+    window.$session = this;
+  }),
 
   signInUrl:          assertConfig('signInUrl'),
   signUpUrl:          assertConfig('signUpUrl'),
@@ -36,8 +37,12 @@ export default Ember.Object.extend({
   googleSignInUrl:    assertConfig('googleSignInUrl'),
   resetPasswordUrl:   assertConfig('resetPasswordUrl'),
 
+  drupalServicesApi: function() {
+    return config.drupalServicesApi || false;
+  },
+
   authTokenKey: function() {
-    return config.authTokenKey || 'access_token';
+    return this.drupalServicesApi() ? 'token' : config.authTokenKey || 'access_token';
   },
 
   localStorageKey: function() {
@@ -46,6 +51,7 @@ export default Ember.Object.extend({
 
   save: function(data) {
     localStorage.setItem(this.localStorageKey(), JSON.stringify(data));
+    // this is setting the whole payload as properties on our session. tsk tsk.
     this.setProperties(data.user);
   },
 
@@ -77,14 +83,35 @@ export default Ember.Object.extend({
         data: JSON.stringify(data),
         contentType: 'application/json'
       }).then(function(userData) {
-        if(get(userData.user, session.authTokenKey())) {
+
+        if (session.drupalServicesApi() && get(userData, session.authTokenKey())) {
+
+          // tricky here. refactor
+          var leanUser = {
+            name: userData.user ? userData.user.name : null,
+            mail: userData.user ? userData.user.mail : null,
+            uid: userData.uid,
+            token: userData.token
+          };
+
+          var tokenKey = session.authTokenKey();
+          session.set(tokenKey, userData[tokenKey]);
+          session.save(leanUser);
+          session.set('isSignedIn', true);
+          session.setPrefilter();
+          resolve(userData);
+
+        } else if(get(userData.user, session.authTokenKey())) {
+
           session.save(userData);
           session.set('isSignedIn', true);
           session.setPrefilter();
           resolve(userData);
+
         } else {
           reject('An ' + session.authTokenKey() + ' must be present in the session creation response.');
         }
+
       }, function(err) {
         session.set('isSignedIn', false);
         reject(err);
@@ -128,15 +155,13 @@ export default Ember.Object.extend({
 
   setPrefilter: function() {
     var authToken = this.get(this.authTokenKey());
-
-    if(Ember.isNone(authToken)) {
-      return false;
-    }
+    var header    = this.drupalServicesApi() ? 'X-CSRF-Token' : 'Authorization';
 
     Ember.$.ajaxPrefilter(function(options) {
       if (!options.beforeSend) {
         options.beforeSend = function (xhr) {
-          xhr.setRequestHeader('Authorization', authToken);
+          // here here here for drupal changet to X-CSRF-Token
+          xhr.setRequestHeader(header, authToken);
         };
       }
     });
