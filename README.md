@@ -135,6 +135,8 @@ export default Ember.Route.extend({
 
 The properties returned from calling signIn / signUp will also be store. See the section on those methods for details.
 
+### Example App with FB sign in
+See [example-fb-login](https://github.com/poetic/ember-cli-cordova-auth/tree/example-fb-login) branch.
 
 ### Developing this addon
 
