@@ -47,6 +47,9 @@ export default Ember.Object.extend({
   save: function(data) {
     localStorage.setItem(this.localStorageKey(), JSON.stringify(data));
     this.setProperties(data.user);
+    // Do not store auth token key in session, store this info in a single place:
+    // localStorage
+    this.set(this.authTokenKey(), null);
   },
 
   isSignedIn: Ember.computed.notEmpty(config.authTokenKey),
@@ -61,6 +64,7 @@ export default Ember.Object.extend({
           session.set(key, null);
         });
         session.set('isSignedIn', false);
+        session.setPrefilter();
         resolve();
       } catch(e) {
         reject(e);
@@ -127,18 +131,19 @@ export default Ember.Object.extend({
   },
 
   setPrefilter: function() {
-    var authToken = this.get(this.authTokenKey());
-
-    if(Ember.isNone(authToken)) {
-      return false;
-    }
-
     Ember.$.ajaxPrefilter(function(options) {
-      if (!options.beforeSend) {
-        options.beforeSend = function (xhr) {
-          xhr.setRequestHeader('Authorization', authToken);
-        };
+      try {
+        var authObj = JSON.parse(localStorage.getItem(this.authTokenKey()));
+        var authToken = authObj['user']['auth_token'];
+      } catch (e) {
+        // ignore json parse error;
       }
+
+      // always set authToken no matter the localStorage has the token or not
+      // since we want to sign out and clean the request header
+      options.beforeSend = function (xhr) {
+        xhr.setRequestHeader('Authorization', authToken || '');
+      };
     });
 
     return true;
